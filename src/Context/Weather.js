@@ -21,9 +21,24 @@ export const WeatherProvider = (props) => {
   const [searchCity, setSearchCity] = useState("");
 
   const fetchData = useCallback(async () => {
-    if (!searchCity) return;
+    if (!searchCity.trim()) return;
 
-    const response = await getWeatherDataForCity(searchCity);
+    const city = searchCity.trim();
+
+    // First, try to find the city in India
+    const indiaResponse = await getWeatherDataForCity(
+      `${city}, India`
+    );
+
+    if (!indiaResponse.error) {
+      // If the city exists in India, always show the Indian location
+      setData(indiaResponse);
+      return;
+    }
+
+    // If the city doesn't exist in India,
+    // search normally in other countries
+    const response = await getWeatherDataForCity(city);
 
     if (response.error) {
       alert("Location not found! Please check.");
@@ -34,12 +49,17 @@ export const WeatherProvider = (props) => {
   }, [searchCity]);
 
   const fetchCurrentUserLocationData = useCallback(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      getWeatherDataForLocation(
-        position.coords.latitude,
-        position.coords.longitude
-      ).then((data) => setData(data));
-    });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        getWeatherDataForLocation(
+          position.coords.latitude,
+          position.coords.longitude
+        ).then((data) => setData(data));
+      },
+      () => {
+        alert("Unable to get your current location.");
+      }
+    );
   }, []);
 
   return (
