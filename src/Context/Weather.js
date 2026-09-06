@@ -7,24 +7,42 @@ export const useWeather = () => {
 };
 
 export const WeatherProvider = (props) => {
-    const [data, setData] = useState(null);
-    const [searchCity, setSearchCity] = useState(null);
+  const [data, setData] = useState(null);
+  const [searchCity, setSearchCity] = useState("");
 
-    const fetchData = async () => {
-        const response = await getWeatherDataForCity(searchCity);
-        setData(response);
-    };
+  const fetchData = async () => {
+    if (!searchCity) return;
+    const response = await getWeatherDataForCity(searchCity);
+    // setData(response);
 
-    const fetchCurrentUserLocationData = () => {
-        navigator.geolocation.getCurrentPosition((position) => {
-            getWeatherDataForLocation(
-                position.coords.latitude,
-                position.coords.longitude
-            ).then(data => setData(data));
-        });
-    };
+    if (response.error) {
+      alert("Location not found! Please check.");
+      setData(null);
+    } else {
+      setData(response);
+    }
+  };
 
-  return <WeatherContext.Provider value={{searchCity, data, setSearchCity, fetchData, fetchCurrentUserLocationData}}>
-    {props.children}
-    </WeatherContext.Provider>;
+  const fetchCurrentUserLocationData = () => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      getWeatherDataForLocation(
+        position.coords.latitude,
+        position.coords.longitude,
+      ).then((data) => setData(data));
+    });
+  };
+
+  return (
+    <WeatherContext.Provider
+      value={{
+        searchCity,
+        data,
+        setSearchCity,
+        fetchData,
+        fetchCurrentUserLocationData,
+      }}
+    >
+      {props.children}
+    </WeatherContext.Provider>
+  );
 };

@@ -12,15 +12,20 @@ function App() {
 
   useEffect(() => {
     weather.fetchCurrentUserLocationData();
-  }, [weather]);
+  }, []);
 
   const handleSearch = () => {
     weather.fetchData(weather.searchCity);
   };
 
   const handleRefresh = () => {
-    if (weather && weather.searchCity) {
-      weather.fetchData(weather.searchCity);
+    // if (weather && weather.searchCity) {
+    //   weather.fetchData(weather.searchCity);
+    // }
+    weather.fetchCurrentUserLocationData();
+    
+    if (weather.setSearchCity) {
+        weather.setSearchCity("");
     }
   };
 
