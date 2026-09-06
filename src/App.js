@@ -9,24 +9,23 @@ import { useWeather } from "./Context/Weather";
 import "./App.css";
 
 function App() {
-  const weather = useWeather();
-
-  console.log(weather);
+  const {
+    fetchCurrentUserLocationData,
+    fetchData,
+    setSearchCity,
+  } = useWeather();
 
   useEffect(() => {
-    weather.fetchCurrentUserLocationData();
-  }, [weather.fetchCurrentUserLocationData]);
+    fetchCurrentUserLocationData();
+  }, [fetchCurrentUserLocationData]);
 
   const handleSearch = () => {
-    weather.fetchData();
+    fetchData();
   };
 
   const handleRefresh = () => {
-    weather.fetchCurrentUserLocationData();
-
-    if (weather.setSearchCity) {
-      weather.setSearchCity("");
-    }
+    fetchCurrentUserLocationData();
+    setSearchCity("");
   };
 
   return (
