@@ -23,28 +23,38 @@ export const WeatherProvider = (props) => {
   const fetchData = useCallback(async () => {
     if (!searchCity.trim()) return;
 
-    const city = searchCity.trim();
+    const query = searchCity.trim();
+    const queryLower = query.toLowerCase();
 
-    // First, try to find the city in India
+    // 1. First check for India 
     const indiaResponse = await getWeatherDataForCity(
-      `${city}, India`
+      `${query}, India`
     );
 
     if (!indiaResponse.error) {
-      // If the city exists in India, always show the Indian location
-      setData(indiaResponse);
-      return;
+      const apiCityName = indiaResponse.location.name.toLowerCase();
+      // Check location ?= query
+      if (apiCityName.includes(queryLower) || queryLower.includes(apiCityName)) {
+        setData(indiaResponse);
+        return;
+      }
     }
 
-    // If the city doesn't exist in India,
-    // search normally in other countries
-    const response = await getWeatherDataForCity(city);
+    // 2. If location not found in India then go for  global search 
+    const response = await getWeatherDataForCity(query);
 
     if (response.error) {
       alert("Location not found! Please check.");
       setData(null);
     } else {
-      setData(response);
+      const apiCityName = response.location.name.toLowerCase();
+      
+      if (apiCityName.includes(queryLower) || queryLower.includes(apiCityName)) {
+        setData(response);
+      } else {
+        alert("Location not found! Please check.");
+        setData(null);
+      }
     }
   }, [searchCity]);
 
