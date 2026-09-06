@@ -1,5 +1,15 @@
-import { createContext, useContext, useState } from "react";
-import { getWeatherDataForCity, getWeatherDataForLocation } from "../api";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+} from "react";
+
+import {
+  getWeatherDataForCity,
+  getWeatherDataForLocation,
+} from "../api";
+
 const WeatherContext = createContext(null);
 
 export const useWeather = () => {
@@ -10,10 +20,10 @@ export const WeatherProvider = (props) => {
   const [data, setData] = useState(null);
   const [searchCity, setSearchCity] = useState("");
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!searchCity) return;
+
     const response = await getWeatherDataForCity(searchCity);
-    // setData(response);
 
     if (response.error) {
       alert("Location not found! Please check.");
@@ -21,16 +31,16 @@ export const WeatherProvider = (props) => {
     } else {
       setData(response);
     }
-  };
+  }, [searchCity]);
 
-  const fetchCurrentUserLocationData = () => {
+  const fetchCurrentUserLocationData = useCallback(() => {
     navigator.geolocation.getCurrentPosition((position) => {
       getWeatherDataForLocation(
         position.coords.latitude,
-        position.coords.longitude,
+        position.coords.longitude
       ).then((data) => setData(data));
     });
-  };
+  }, []);
 
   return (
     <WeatherContext.Provider
